@@ -1,0 +1,18 @@
+[
+  {
+    "label": "Are you legally authorized to work in the United States? (Yes/No)",
+    "id_of_input_component": "d2e33fec-0aae-4823-9799-d880ee978e64_98488bb7-70fd-4940-92e5-f3f97b7e4289",
+    "required": true,
+    "type_of_input": "multiselect",
+    "options": ["Yes", "No"],
+    "user_data_select_values": ["Yes"]
+  },
+  {
+    "label": "Will you now or in the future require sponsorship for employment visa status (e.g., H-1B, TN, etc.)?",
+    "id_of_input_component": "d2e33fec-0aae-4823-9799-d880ee978e64_c6227542-3adf-446a-8216-ccd71935a0b0",
+    "required": true,
+    "type_of_input": "multiselect",
+    "options": ["Yes", "No"],
+    "user_data_select_values": ["No"]
+  }
+]

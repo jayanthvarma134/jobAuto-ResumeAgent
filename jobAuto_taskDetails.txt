@@ -1,0 +1,76 @@
+**Goal: Design a Workday “sub-page scraper + form-mapper”**
+
+##List of Tasks:
+1. **Sign in** 
+    to an existing Workday candidate account.
+2. **Traverse at least 2 reachable sub-pages** 
+    in a given application flow (e.g., “My Information → Job Application → EEO → Review”), stopping only when no new internal links remain.
+3. For each page, **locate every form control** 
+    (inputs, textareas, dropdowns, single-select & multi-select radio / checkbox sets, date pickers, file uploads, etc.) 
+4. **Return a structured JSON list** 
+    where each element looks like:
+    ```python
+    {
+        "label": "<visible question>",
+        "id_of_input_component": "<DOM id|name|data-automation-id>",
+        "required": <bool>,
+        "type_of_input": "text" | "textarea" | "select" | "multiselect" | "checkbox" | "radio" | "date" | "file" | "dropdown",
+        "options": [<visible choices>]          # only for select / multiselect / radio / checkbox
+        "user_data_select_values": [<example values chosen arbitrarily for test-filling>]
+    }
+    ```
+
+    Example output slice:
+    ```python
+    [
+        {
+            "label": "Are you legally authorized to work in the United States? (Yes/No)",
+            "id_of_input_component": "d2e33fec-0aae-4823-9799-d880ee978e64_98488bb7-70fd-4940-92e5-f3f97b7e4289",
+            "required": true,
+            "type_of_input": "multiselect",
+            "options": ["Yes", "No"],
+            "user_data_select_values": ["Yes"]
+        },
+        {
+            "label": "Will you now or in the future require sponsorship for employment visa status (e.g., H-1B, TN, etc.)?",
+            "id_of_input_component": "d2e33fec-0aae-4823-9799-d880ee978e64_c6227542-3adf-446a-8216-ccd71935a0b0",
+            "required": true,
+            "type_of_input": "multiselect",
+            "options": ["Yes", "No"],
+            "user_data_select_values": ["No"]
+        }
+    ]
+    ```
+5. **Use these workpages as your testbed** to fill the job application
+    1.   https://jobs.lever.co/voltus/e6e12da1-116e-4fa9-bb36-a6d224aaee4f/apply
+    2.   https://jobs.lever.co/Regentcraft/f8597117-3d67-4989-944a-c89fd4f756ac/apply
+    3.   https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/details/Senior-AI-and-ML-Engineer---AI-for-Networking_JR2000376?q=ml%20engineer
+6. Repeatable playwright workflow
+
+### Deliverables
+    * Clean, well-commented script(s).
+    * Read-me covering setup, environment vars for credentials, and how to run against any Workday tenant URL.
+
+### Success criteria
+    * Script logs in, crawls, and outputs JSON for at least 95 % of controls on a test tenant without manual tweaks.
+    * Handles dynamic “Start typing…” combo-boxes, date pickers, file uploads, and hidden/disabled fields gracefully.
+    * No brittle x-paths; rely on Workday’s `data-automation-id`, visible labels, or semantic roles.
+
+
+
+
+
+
+In simple terms can you design a process which genralises the extraction of sub-pages on workday. Meaning you can signin to an existing account and go through as many pages as you can, find the elements and convert them into: (a list of elements)
+Keep in mind the different element types and the options for the dropdowns and multiselect checkboxes. Values can be arbitrary for filling.
+We need a web-automation engineer to build a repeatable Playwright (or equivalent) workflow that can:
+
+
+
+
+
+
+
+
+
+

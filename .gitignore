@@ -11,6 +11,5 @@ ENV/
 *.swp
 
 # Project specific
-output/
 .env
 *.log 

@@ -1,0 +1,176 @@
+{
+  "url": "https://jobs.lever.co/Regentcraft/f8597117-3d67-4989-944a-c89fd4f756ac/apply",
+  "timestamp": "2025-08-01T20:37:18.745800",
+  "elements": [
+    {
+      "label": "Resume/CV",
+      "id_of_input_component": "resume",
+      "required": true,
+      "type_of_input": "file",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Full name",
+      "id_of_input_component": "name",
+      "required": true,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Email",
+      "id_of_input_component": "email",
+      "required": true,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Phone",
+      "id_of_input_component": "phone",
+      "required": false,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Current location",
+      "id_of_input_component": "location",
+      "required": false,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Current company",
+      "id_of_input_component": "org",
+      "required": false,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "LinkedIn URL",
+      "id_of_input_component": "urls[LinkedIn]",
+      "required": false,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Portfolio URL",
+      "id_of_input_component": "urls[Portfolio]",
+      "required": false,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "How did you learn about this position?",
+      "id_of_input_component": "cards[d2477472-7ac0-4896-ae8b-c2faba33f266][field0]",
+      "required": true,
+      "type_of_input": "text",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "What interests you in this role / REGENT? (Max 500 words)",
+      "id_of_input_component": "cards[d2477472-7ac0-4896-ae8b-c2faba33f266][field1]",
+      "required": true,
+      "type_of_input": "textarea",
+      "options": null,
+      "user_data_select_values": null
+    },
+    {
+      "label": "Are you legally authorized to work in the United States?",
+      "id_of_input_component": "cards[d2477472-7ac0-4896-ae8b-c2faba33f266][field2]",
+      "required": true,
+      "type_of_input": "radio",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "user_data_select_values": [
+        "Yes"
+      ]
+    },
+    {
+      "label": "Will you need visa sponsorship now or in the future to be eligible for employment in the United States?",
+      "id_of_input_component": "cards[d2477472-7ac0-4896-ae8b-c2faba33f266][field3]",
+      "required": true,
+      "type_of_input": "radio",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "user_data_select_values": [
+        "Yes"
+      ]
+    },
+    {
+      "label": "REGENT is located in North Kingstown, Rhode Island. Are you either located within a 50 mile radius or available to work on-site with relocation support?",
+      "id_of_input_component": "cards[d2477472-7ac0-4896-ae8b-c2faba33f266][field4]",
+      "required": true,
+      "type_of_input": "radio",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "user_data_select_values": [
+        "Yes"
+      ]
+    },
+    {
+      "label": "What is your age range?",
+      "id_of_input_component": "surveysResponses[7bddd273-4fb2-4f40-be0d-0d00a189b5cc][responses][field0]",
+      "required": false,
+      "type_of_input": "radio",
+      "options": [
+        "17 or younger",
+        "18-20",
+        "21-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60 or older"
+      ],
+      "user_data_select_values": [
+        "17 or younger"
+      ]
+    },
+    {
+      "label": "I identify my ethnicity asSelect all that apply",
+      "id_of_input_component": "surveysResponses[7bddd273-4fb2-4f40-be0d-0d00a189b5cc][responses][field1]",
+      "required": false,
+      "type_of_input": "checkbox",
+      "options": [
+        "White / Caucasian",
+        "Hispanic, Latino, or Spanish origin",
+        "Black or African American",
+        "Asian",
+        "Native Hawaiian or other Pacific Islander",
+        "Indigenous Peoples, First Nations, Native American, or Alaska Native",
+        "Middle Eastern or North African",
+        "Some other race, ethnicity, or origin"
+      ],
+      "user_data_select_values": [
+        "White / Caucasian"
+      ]
+    },
+    {
+      "label": "What gender do you identify as?",
+      "id_of_input_component": "surveysResponses[7bddd273-4fb2-4f40-be0d-0d00a189b5cc][responses][field2]",
+      "required": false,
+      "type_of_input": "radio",
+      "options": [
+        "Female",
+        "Male",
+        "Non-binary"
+      ],
+      "user_data_select_values": [
+        "Female"
+      ]
+    }
+  ]
+}

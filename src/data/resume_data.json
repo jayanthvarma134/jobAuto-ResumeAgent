@@ -7,8 +7,8 @@
     },
     "contact": {
       "email": "lin.mei@example.com",
-      "phone": "+919876543210",
-      "location": "Seattle, WA"
+      "phone": "(555) 123-4567",
+      "location": "San Francisco, CA"
     },
     "links": {
       "linkedin": "linkedin.com/in/linmei",
@@ -93,12 +93,13 @@
   "application_responses": {
     "source": "LinkedIn Job Search",
     "why_company": {
+      "default": "I am excited about this opportunity because it aligns with my skills and career goals. I am particularly interested in contributing to innovative projects and working with a talented team.",
       "voltus": "I am passionate about leveraging technology to combat climate change. Voltus's mission to optimize energy usage through demand response aligns perfectly with my experience in building scalable cloud systems and my desire to make a meaningful impact on environmental sustainability.",
-      "regent": "I'm excited about REGENT's innovative approach to sustainable transportation. My background in developing robust software systems and experience with real-time data processing would be valuable in helping REGENT push the boundaries of electric seaglider technology."
+      "regentcraft": "I am excited about REGENT's innovative approach to sustainable maritime transportation. The opportunity to work on cutting-edge electric seagliders that combine efficiency with environmental consciousness perfectly aligns with my background in software systems and my passion for sustainable technology."
     },
     "location_preferences": {
       "willing_to_relocate": true,
-      "preferred_locations": ["San Francisco, CA", "North Kingstown, RI"],
+      "preferred_locations": ["San Francisco, CA", "Boston, New York"],
       "remote_work": "Hybrid preferred"
     }
   }

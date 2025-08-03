@@ -56,8 +56,8 @@ class FormFiller:
                 continue
 
             #Skip if current location field since it triggers a captcha
-            if "location" in elem.label:
-                print(f"Skipping field: {elem.label}")
+            if "location" in elem.label.lower() and elem.type_of_input in ["text", "textarea"]:
+                print(f"Skipping location text field: {elem.label}")
                 continue
                 
             value = self._find_matching_data(elem)
@@ -148,18 +148,20 @@ class FormFiller:
         
     def _is_company_question(self, words: set) -> bool:
         """Check if field is a company-specific question"""
-        question_indicators = {'why', 'interest', 'learn', 'heard', 'about', 'role'}
+        question_indicators = {'why', 'interest', 'learn', 'heard', 'about', 'role', 'what'}
         return bool(words & question_indicators)
         
     def _get_company_response(self, words: set) -> str:
         """Get appropriate company-specific response"""
-        if any(w in words for w in {'why', 'interest', 'role'}):
+        if any(w in words for w in {'why', 'interest', 'role', 'what'}):
             responses = self.resume_data["application_responses"]["why_company"]
             # Try to find company name in URL
             match = re.search(r"jobs\.lever\.co/([^/]+)", self.page.url)
             if match:
                 company = match.group(1).lower()
-                return responses.get(company)
+                response = responses.get(company)
+                return response if response else responses.get("default")
+
         if any(w in words for w in {'learn', 'heard', 'about'}):
             return self.resume_data["application_responses"]["source"]
         return None

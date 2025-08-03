@@ -3,6 +3,7 @@ from datetime import datetime
 from services.browser import BrowserService
 from services.form_scraper import FormScraper
 from services.form_filler import FormFiller
+from services.form_submitter import FormSubmitter
 from pathlib import Path
 
 # Test URLs
@@ -24,6 +25,7 @@ def main():
                     print("Navigating to URL...")
                     browser.goto(url)
                     
+                    # Extract form elements
                     print("Scraping form elements...")
                     scraper = FormScraper(browser.get_page())
                     form_elements = scraper.scrape_form()
@@ -38,22 +40,22 @@ def main():
                     output_path = output_dir / f"{name}-form.json"
                     with open(output_path, "w") as f:
                         json.dump(output, f, indent=2)
-                    
                     print(f"Found {len(form_elements)} elements")
                     
-                    # Filling form details
+                    # Fill the form
                     print("\nFilling form fields...")
                     filler = FormFiller(browser.get_page())
                     filler.fill_form(form_elements)
                     
-                    # Final verification
-                    print("\n✓ Form filling complete!")
-                    print("Please verify all fields before submitting.")
-                    input("Press Enter to continue to next form (or Ctrl+C to exit)...")
+                    # Submit the form
+                    print("\nSubmitting form...")
+                    submitter = FormSubmitter(browser.get_page())
+                    if submitter.submit_form():
+                        print("Form submitted successfully")
+                        browser.get_page().wait_for_timeout(2000)  # Wait for submission
                     
                 except Exception as e:
                     print(f"Error processing {name}: {e}")
-                    input("\nPress Enter to continue to next form (or Ctrl+C to exit)...")
 
     except Exception as e:
         print(f"Error: {e}")

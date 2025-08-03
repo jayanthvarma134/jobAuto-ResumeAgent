@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from services.browser import BrowserService
 from services.form_scraper import FormScraper
+from services.form_filler import FormFiller
 from pathlib import Path
 
 # Test URLs
@@ -13,18 +14,21 @@ URLS = [
 def main():
     """Main entry point for the scraper"""
     try:
-        with BrowserService(headless=False, slow_mo=100) as browser:
+        with BrowserService(headless=False, slow_mo=1000) as browser:
             output_dir = Path("output")
             output_dir.mkdir(exist_ok=True)
             
             for url, name in URLS:
                 try:
-                    print(f"\nScraping {name}...")
+                    print(f"\nProcessing {name}...")
+                    print("Navigating to URL...")
                     browser.goto(url)
                     
+                    print("Scraping form elements...")
                     scraper = FormScraper(browser.get_page())
                     form_elements = scraper.scrape_form()
                     
+                    # Save form structure
                     output = {
                         "url": url,
                         "timestamp": datetime.now().isoformat(),
@@ -37,8 +41,19 @@ def main():
                     
                     print(f"Found {len(form_elements)} elements")
                     
+                    # Filling form details
+                    print("\nFilling form fields...")
+                    filler = FormFiller(browser.get_page())
+                    filler.fill_form(form_elements)
+                    
+                    # Final verification
+                    print("\n✓ Form filling complete!")
+                    print("Please verify all fields before submitting.")
+                    input("Press Enter to continue to next form (or Ctrl+C to exit)...")
+                    
                 except Exception as e:
-                    print(f"Error scraping {name}: {e}")
+                    print(f"Error processing {name}: {e}")
+                    input("\nPress Enter to continue to next form (or Ctrl+C to exit)...")
 
     except Exception as e:
         print(f"Error: {e}")

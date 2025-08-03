@@ -21,7 +21,9 @@ class BrowserService:
             headless=self.headless,
             slow_mo=self.slow_mo
         )
-        self.page = self.browser.new_page()
+        self.page = self.browser.new_page(
+            viewport={'width': 1280, 'height': 720}
+        )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -31,9 +33,15 @@ class BrowserService:
             self.playwright.stop()
 
     def goto(self, url: str):
-        """Navigate to a URL"""
+        """Navigate to a URL and wait for form to be ready"""
         self.page.goto(url)
+        
+        # Wait for form and its key elements to be present
         self.page.wait_for_selector('form', timeout=30000)
+        self.page.wait_for_selector('input, textarea, select', timeout=30000)
+        
+        # Wait a bit for any dynamic content to load
+        self.page.wait_for_timeout(2000)
 
     def get_page(self) -> Page:
         """Get the current page object"""

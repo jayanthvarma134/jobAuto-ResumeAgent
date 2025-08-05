@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright, Page, Browser
 import os
 from pathlib import Path
+from utils.constants import TIMEOUTS
 
 class BrowserService:
     def __init__(self, headless: bool = False, slow_mo: int = 1000):
@@ -17,7 +18,7 @@ class BrowserService:
 
     def __enter__(self):
         self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch(
+        self.browser = self.playwright.firefox.launch(
             headless=self.headless,
             slow_mo=self.slow_mo
         )
@@ -27,21 +28,36 @@ class BrowserService:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.browser:
-            self.browser.close()
-        if self.playwright:
-            self.playwright.stop()
+        """Ensure proper cleanup of browser resources"""
+        try:
+            if self.page:
+                self.page.close()
+            if self.browser:
+                self.browser.close()
+            if self.playwright:
+                self.playwright.stop()
+        except Exception as e:
+            print(f"Error during browser cleanup: {e}")
+            # Still try to stop playwright
+            if self.playwright:
+                self.playwright.stop()
 
     def goto(self, url: str):
         """Navigate to a URL and wait for form to be ready"""
         self.page.goto(url)
         
-        # Wait for form and its key elements to be present
-        self.page.wait_for_selector('form', timeout=30000)
-        self.page.wait_for_selector('input, textarea, select', timeout=30000)
+        # Wait for form to be present and visible
+        self.page.wait_for_selector('form', 
+                                  timeout=TIMEOUTS['page_load'],
+                                  state='visible')
+        
+        # Wait for interactive elements to be ready
+        self.page.wait_for_selector('input, textarea, select', 
+                                  timeout=TIMEOUTS['element'],
+                                  state='visible')
         
         # Wait a bit for any dynamic content to load
-        self.page.wait_for_timeout(2000)
+        self.page.wait_for_timeout(TIMEOUTS['interaction'])
 
     def get_page(self) -> Page:
         """Get the current page object"""

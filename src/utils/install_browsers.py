@@ -10,6 +10,7 @@ def install_browsers():
     os.environ['PLAYWRIGHT_BROWSERS_PATH'] = cache_dir
     print(f"Installing browsers to: {cache_dir}")
     subprocess.run(['playwright', 'install', 'chromium'], check=True)
+    subprocess.run(['playwright', 'install', 'firefox'], check=True)
 
 if __name__ == "__main__":
     install_browsers()

@@ -4,6 +4,7 @@ from typing import Dict, Any, List, Union, Optional
 from playwright.sync_api import Page, ElementHandle
 from models.form import FormElement
 from services.captcha_handler import CaptchaHandler
+from utils.constants import TIMEOUTS
 
 class FormFiller:
     """Service for mapping form fields to resume data and filling forms"""
@@ -75,7 +76,10 @@ class FormFiller:
                 #     print("\n Captcha detected during form filling...")
                 #     if CaptchaHandler.wait_for_manual_solve(self.page):
                 #         print("Resuming form filling...")
-                    
+            
+                # Add delay after filling each field
+                # self.page.wait_for_timeout(1000)  # 1 second delay
+
             except Exception as e:
                 print(f"Error filling {elem.label}: {e}")
                 unfilled_fields.append(elem.label)
@@ -149,6 +153,11 @@ class FormFiller:
     def _is_company_question(self, words: set) -> bool:
         """Check if field is a company-specific question"""
         question_indicators = {'why', 'interest', 'learn', 'heard', 'about', 'role', 'what'}
+        
+        # For 'what' questions, ensure they're about role/company/interest
+        if 'what' in words:
+            return bool(words & {'role', 'company', 'interest'})
+            
         return bool(words & question_indicators)
         
     def _get_company_response(self, words: set) -> str:
@@ -190,7 +199,26 @@ class FormFiller:
             print(f"Error filling {elem.label}: {e}")
             raise
 
-    def _fill_text_field(self, field_id: str, value: Any) -> None:
+    def _smooth_scroll_to_element(self, element) -> None:
+        """Smoothly scroll element into view"""
+        try:
+            # Get element's position
+            box = element.bounding_box()
+            if box:
+                # Scroll smoothly to element
+                print("scrolling to element")
+                self.page.evaluate("""(y) => {
+                    window.scrollTo({
+                        top: y - window.innerHeight/2,
+                        behavior: 'smooth'
+                    });
+                }""", box['y'])
+                # Wait for scroll to complete
+                self.page.wait_for_timeout(TIMEOUTS['interaction'])
+        except Exception as e:
+            print(f"Scroll error: {e}")
+
+    def _fill_text_field(self, field_id: str, value: str) -> None:
         """Fill a text or textarea field"""
         selectors = [
             f"input[name='{field_id}']",
@@ -200,11 +228,27 @@ class FormFiller:
         ]
         for selector in selectors:
             try:
-                element = self.page.wait_for_selector(selector, timeout=2000)
+                element = self.page.wait_for_selector(selector, 
+                                                    timeout=TIMEOUTS['element'],
+                                                    state='visible')
                 if element:
-                    element.fill(str(value))
+                    # Smooth scroll to element
+                    self._smooth_scroll_to_element(element)
+                    element.click()
+                    element.fill("")
+                    
+                    # # Type value with human-like delays
+                    # words = str(value).split()
+                    # for i, word in enumerate(words):
+                    #     # Type word as a chunk for speed
+                    #     element.type(word, delay=1)
+                    #     # Add space between words with shorter pause
+
+                    element.type(str(value))
+                    self.page.wait_for_timeout(TIMEOUTS['interaction'])
                     break
-            except:
+            except Exception as e:
+                print(f"Failed with selector {selector}: {e}")
                 continue
 
     def _fill_dropdown(self, field_id: str, value: Any) -> None:
@@ -215,7 +259,13 @@ class FormFiller:
 
     def _fill_radio(self, field_id: str, value: Any, options: Optional[List[str]]) -> None:
         """Fill a radio button field"""
-        self.page.check(f"input[type='radio'][name='{field_id}'][value='{value}']")
+        selector = f"input[type='radio'][name='{field_id}'][value='{value}']"
+        radio = self.page.wait_for_selector(selector, 
+                                          timeout=TIMEOUTS['element'],
+                                          state='visible')
+        if radio:
+            radio.check()
+            self.page.wait_for_timeout(TIMEOUTS['interaction'])
 
     def _fill_checkbox(self, field_id: str, value: Any, options: Optional[List[str]]) -> None:
         """Fill a checkbox field"""
@@ -224,7 +274,7 @@ class FormFiller:
         try:
             # Find all checkboxes for this field with timeout
             selector = f"input[type='checkbox'][name='{field_id}']"
-            self.page.wait_for_selector(selector, timeout=2000)  # Wait for at least one to be present
+            self.page.wait_for_selector(selector, timeout=TIMEOUTS['element'])  # Wait for at least one to be present
             checkboxes = self.page.query_selector_all(selector)
             
             # Convert value to lowercase for case-insensitive comparison

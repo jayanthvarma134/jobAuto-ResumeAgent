@@ -17,7 +17,11 @@
       "twitter": "twitter.com/linmei"
     },
     "pronouns": "she/her",
-    "current_company": "TechCorp Inc."
+    "current_company": "TechCorp Inc.",
+    "resume": {
+      "file_path": "Lin Mei_Experiened Level Software.pdf",
+      "file_type": "application/pdf"
+    }
   },
   "work_experience": [
     {

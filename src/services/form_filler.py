@@ -24,6 +24,7 @@ class FormFiller:
             "phone": ["personal_info", "contact", "phone"],
             "location": ["personal_info", "contact", "location"],
             "company": ["personal_info", "current_company"],
+            "resume": ["personal_info", "resume", "file_path"],
             
             # Links
             "linkedin": ["personal_info", "links", "linkedin"],
@@ -51,9 +52,9 @@ class FormFiller:
             # import pdb; pdb.set_trace()
             print(f"Processing field: {elem.label} ({elem.type_of_input})")
 
-            # Skip file fields
-            if not elem.label or elem.type_of_input == "file":
-                print(f"Skipping field: {elem.label}")
+            # Skip if no label
+            if not elem.label:
+                print(f"Skipping field: no label")
                 continue
 
             #Skip if current location field since it triggers a captcha
@@ -185,6 +186,8 @@ class FormFiller:
             field_type = elem.type_of_input
             field_id = elem.id_of_input_component
             
+            if field_type == "file":
+                self._fill_file_field(field_id, value)
             if field_type in ["text", "textarea"]:
                 self._fill_text_field(field_id, value)
             elif field_type in ["dropdown", "multiselect"]:
@@ -192,7 +195,6 @@ class FormFiller:
             elif field_type == "radio":
                 self._fill_radio(field_id, value, elem.options)
             elif field_type == "checkbox":
-                print("yes")
                 self._fill_checkbox(field_id, value, elem.options)
                 
         except Exception as e:
@@ -292,3 +294,17 @@ class FormFiller:
             
         except Exception as e:
             print(f"Error finding/filling checkbox: {e}") 
+
+    def _fill_file_field(self, field_id: str, value: Any) -> None:
+        """Handle file upload for resume"""
+        try:
+            # Use input[type="file"] selector
+            file_input = self.page.wait_for_selector(
+                f'input[type="file"][name="{field_id}"]',
+                timeout=TIMEOUTS['element']
+            )
+            if file_input:
+                file_input.set_input_files(value)
+                self.page.wait_for_timeout(TIMEOUTS['interaction'])
+        except Exception as e:
+            print(f"Error uploading file: {e}")

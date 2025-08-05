@@ -18,13 +18,19 @@ class BrowserService:
 
     def __enter__(self):
         self.playwright = sync_playwright().start()
+        
         self.browser = self.playwright.firefox.launch(
             headless=self.headless,
-            slow_mo=self.slow_mo
+            slow_mo=self.slow_mo,
+            args=['--start-maximized']  # Start browser maximized
         )
-        self.page = self.browser.new_page(
-            viewport={'width': 1280, 'height': 720}
+        
+        # Get system screen size
+        context = self.browser.new_context(
+            viewport={'width': 1920, 'height': 1080}
         )
+        
+        self.page = context.new_page()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

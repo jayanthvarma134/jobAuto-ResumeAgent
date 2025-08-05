@@ -204,17 +204,24 @@ class FormFiller:
     def _smooth_scroll_to_element(self, element) -> None:
         """Smoothly scroll element into view"""
         try:
+            # Get current scroll position
+            current_scroll = self.page.evaluate('window.scrollY')
+            
             # Get element's position
             box = element.bounding_box()
             if box:
-                # Scroll smoothly to element
-                print("scrolling to element")
-                self.page.evaluate("""(y) => {
+                # Calculate scroll target (center element in viewport)
+                viewport_height = self.page.evaluate('window.innerHeight')
+                target_scroll = box['y'] - (viewport_height / 2)
+                
+                # Smooth scroll from current position
+                self.page.evaluate("""(current, target) => {
                     window.scrollTo({
-                        top: y - window.innerHeight/2,
+                        top: target,
                         behavior: 'smooth'
                     });
-                }""", box['y'])
+                }""", current_scroll, target_scroll)
+                
                 # Wait for scroll to complete
                 self.page.wait_for_timeout(TIMEOUTS['interaction'])
         except Exception as e:
@@ -305,6 +312,6 @@ class FormFiller:
             )
             if file_input:
                 file_input.set_input_files(value)
-                self.page.wait_for_timeout(TIMEOUTS['interaction'])
+                self.page.wait_for_timeout(TIMEOUTS['resume_upload'])
         except Exception as e:
             print(f"Error uploading file: {e}")

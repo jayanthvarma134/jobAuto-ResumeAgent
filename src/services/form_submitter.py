@@ -1,4 +1,5 @@
 from playwright.sync_api import Page
+from utils.constants import TIMEOUTS
 
 class FormSubmitter:
     """Service for handling form submission"""
@@ -11,8 +12,7 @@ class FormSubmitter:
         try:
             # Scroll to bottom of page
             self.page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
-            self.page.wait_for_timeout(1000)  # Wait for scroll to complete
-
+            self.page.wait_for_timeout(TIMEOUTS['interaction'])  # Wait for scroll to complete
             # import pdb; pdb.set_trace()
             
             # Try different submit button selectors
@@ -32,7 +32,7 @@ class FormSubmitter:
                     # Wait for button to be visible and enabled
                     submit_button = self.page.wait_for_selector(
                         selector,
-                        timeout=1000,
+                        timeout=TIMEOUTS['element'],
                         state="visible"
                     )
                     

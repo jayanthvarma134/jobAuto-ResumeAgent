@@ -5,6 +5,7 @@ from services.form_scraper import FormScraper
 from services.form_filler import FormFiller
 from services.form_submitter import FormSubmitter
 from pathlib import Path
+from utils.constants import TIMEOUTS
 
 # Test URLs
 URLS = [
@@ -51,11 +52,14 @@ def main():
                     print("\nSubmitting form...")
                     submitter = FormSubmitter(browser.get_page())
                     if submitter.submit_form():
-                        print("Form submitted successfully")
-                        browser.get_page().wait_for_timeout(2000)  # Wait for submission
+                        print("Form submitted.")
+                        print("\nWaiting for submission to complete...")
+                        browser.get_page().wait_for_timeout(TIMEOUTS['navigation'])  # 1 minute wait
                     
                 except Exception as e:
                     print(f"Error processing {name}: {e}")
+                    # Still wait before moving on
+                    browser.get_page().wait_for_timeout(TIMEOUTS['navigation'])  # 1 minute wait
 
     except Exception as e:
         print(f"Error: {e}")

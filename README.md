@@ -13,7 +13,12 @@ A Python-based tool that scrapes job application forms from various job portals 
   - File uploads
 - Detects required fields
 - Handles multi-select options
-- Outputs structured JSON data
+- Outputs form elements as a structured JSON
+- Automatically fills form fields from resume data
+- Handles file uploads (resume/CV)
+- ~~Supports manual captcha solving~~
+- Visual form filling feedback
+- Configurable timeouts and delays
 
 ## Setup
 
@@ -35,7 +40,9 @@ python src/install_browsers.py
 
 ## Usage
 
-Run the scraper:
+1. Update resume data in `src/data/resume_data.json`
+2. Add job application URLs to `src/main.py`
+3. Run the script:
 ```bash
 python src/main.py
 ```
@@ -43,7 +50,10 @@ python src/main.py
 The script will:
 1. Open each job application URL
 2. Extract all form elements
-3. Save the data to JSON files in the `output` directory
+3. Fill form fields with resume data
+4. Upload resume file when required
+5. ~~Pause for manual captcha solving if needed~~
+6. Save the form structure to JSON files in the `output` directory
 
 ## Output Format
 
@@ -72,11 +82,16 @@ jobAuto/
 ├── src/
 │   ├── main.py              # Main script
 │   ├── install_browsers.py  # Browser installation script
+│   ├── utils/
+│   │   └── constants.py    # Configuration constants
 │   ├── models/
-│   │   └── form.py         # Form element data models
+│   │   └── form.py        # Form element data models
 │   └── services/
-│       ├── browser.py      # Browser service
-│       └── form_scraper.py # Form scraping logic
+│       ├── browser.py     # Browser service
+│       ├── form_scraper.py # Form scraping logic
+│       ├── form_filler.py  # Form filling logic
+│       ├── form_submitter.py # Form submission handling
+│       └── captcha_handler.py # Captcha detection and handling
 ├── requirements.txt        # Python dependencies
 └── README.md
 ```
@@ -85,10 +100,21 @@ jobAuto/
 
 The scraper is designed to be extensible for different job portals. Currently supports:
 - Phase 1: Lever.co job applications
-- Future: Support for SmartRecruiters and Workday portals
+- Phase 2a: Support for SmartRecruiters and Workday portals
+- Phase 2b: Handle extensive hcaptchas
 
 ## Requirements
 
 - Python 3.9+
 - Playwright
-- See requirements.txt for full list of dependencies 
+- Firefox Browser
+- See requirements.txt for full list of dependencies
+
+## Configuration
+
+Timeouts and delays can be configured in `src/utils/constants.py`:
+- page_load: Initial page/form load timeout
+- element: Standard element wait timeout
+- interaction: Delay after clicks/inputs
+- navigation: Page navigation/submission wait
+- resume_upload: Resume upload timeout 

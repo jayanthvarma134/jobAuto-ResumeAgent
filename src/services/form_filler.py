@@ -3,8 +3,8 @@ import re
 from typing import Dict, Any, List, Union, Optional
 from playwright.sync_api import Page, ElementHandle
 from models.form import FormElement
-from services.captcha_handler import CaptchaHandler
 from utils.constants import TIMEOUTS
+from services.twocaptcha_handler import TwoCaptchaHandler
 
 class FormFiller:
     """Service for mapping form fields to resume data and filling forms"""
@@ -44,12 +44,11 @@ class FormFiller:
             "work on-site": ["application_responses", "location_preferences", "willing_to_relocate"]
         }
     
-    def fill_form(self, form_elements: List[FormElement]) -> None:
+    def fill_form(self, form_elements: List[FormElement], captcha_handler: Optional[TwoCaptchaHandler] = None) -> None:
         """Fill form fields with resume data"""
         unfilled_fields = []
         
         for elem in form_elements:
-            # import pdb; pdb.set_trace()
             print(f"Processing field: {elem.label} ({elem.type_of_input})")
 
             # Skip if no label
@@ -58,9 +57,9 @@ class FormFiller:
                 continue
 
             #Skip if current location field since it triggers a captcha
-            if "location" in elem.label.lower() and elem.type_of_input in ["text", "textarea"]:
-                print(f"Skipping location text field: {elem.label}")
-                continue
+            # if "location" in elem.label.lower() and elem.type_of_input in ["text", "textarea"]:
+            #     print(f"Skipping location text field: {elem.label}")
+            #     continue
                 
             value = self._find_matching_data(elem)
             if not value:
@@ -69,18 +68,115 @@ class FormFiller:
                 continue
                 
             try:
+                # If this is the location field, print captcha state before filling
+                if "location" in elem.label.lower() and elem.type_of_input in ["text", "textarea"]:
+                    if captcha_handler:
+                        print("\nCapturing state before location field...")
+                        captcha_handler.print_captcha_state(self.page, "Before location field")
+                
                 self._fill_field(elem, value)
                 print(f"Filled {elem.label} with: {value}")
-                
-                # Check for captcha after each field interaction
-                # if CaptchaHandler.detect_captcha(self.page):
-                #     print("\n Captcha detected during form filling...")
-                #     if CaptchaHandler.wait_for_manual_solve(self.page):
-                #         print("Resuming form filling...")
-            
                 # Add delay after filling each field
-                # self.page.wait_for_timeout(1000)  # 1 second delay
-
+                self.page.wait_for_timeout(TIMEOUTS['interaction'])
+                
+                # Check for captcha after field interaction
+                if captcha_handler:
+                    print("\nChecking for hCaptcha after field fill...")
+                    hcaptcha = TwoCaptchaHandler.detect_hcaptcha(self.page)
+                    if hcaptcha["found"]:
+                        print("hCaptcha detected, attempting to solve...")
+                        print("\nCapturing state when captcha becomes active...")
+                        captcha_handler.print_captcha_state(self.page, "Captcha active")
+                        
+                        # Uncomment and use automatic solution
+                        # import pdb; pdb.set_trace()
+                        # if captcha_handler.solve_hcaptcha(self.page, hcaptcha):
+                        #     print("hCaptcha solved successfully")
+                        #     # Add extra delay after solving captcha
+                        #     self.page.wait_for_timeout(TIMEOUTS['interaction'])
+                        #     print("\nCapturing state after captcha solved...")
+                        #     captcha_handler.print_captcha_state(self.page, "After captcha solved")
+                        # else:
+                            # print("Failed to solve hCaptcha")
+                        
+                        # Comment out manual solution
+                        # """
+                        print("\nPlease solve the captcha manually...")
+                        print("After solving, press Enter to capture the state...")
+                        input()
+                        # ... rest of manual monitoring code ...
+                        # """                        
+                        # 1. Get the visible enclave iframe we already detected
+                        print("\nInvisible Checkbox Iframe:")
+                        try:
+                            # Get the frame using the URL from detect_hcaptcha
+                            frame = self.page.frame(url=hcaptcha['src'])
+                            if frame:
+                                # Look for checkbox-invisible inside this frame
+                                checkbox_info = frame.evaluate('''() => {
+                                    const iframe = document.querySelector('iframe[src*="checkbox-invisible"]');
+                                    if (!iframe) return null;
+                                    return {
+                                        src: iframe.src,
+                                        widgetId: iframe.getAttribute('data-hcaptcha-widget-id'),
+                                        response: iframe.getAttribute('data-hcaptcha-response'),
+                                        display: window.getComputedStyle(iframe).display,
+                                        visibility: window.getComputedStyle(iframe).visibility,
+                                        attributes: Object.entries(iframe.attributes).reduce((acc, [_, attr]) => {
+                                            acc[attr.name] = attr.value;
+                                            return acc;
+                                        }, {})
+                                    };
+                                }''')
+                                
+                                if checkbox_info:
+                                    print(f"  Source: {checkbox_info.get('src', 'Not found')}")
+                                    print(f"  Widget ID: {checkbox_info.get('widgetId', 'None')}")
+                                    print(f"  Response Present: {'Yes' if checkbox_info.get('response') else 'No'}")
+                                    if checkbox_info.get('response'):
+                                        print(f"  Response Value: {checkbox_info['response']}")
+                                    print(f"  Display: {checkbox_info.get('display', 'Not found')}")
+                                    print(f"  Visibility: {checkbox_info.get('visibility', 'Not found')}")
+                                    print(f"  All Attributes: {checkbox_info.get('attributes', {})}")
+                                else:
+                                    print("  No checkbox-invisible iframe found in frame")
+                            else:
+                                print("  Could not access detected frame")
+                        except Exception as e:
+                            print(f"  Error: {str(e)}")
+                            print("  Not found!")
+                        
+                        # 2. Check enclave iframes
+                        enclave_iframes = self.page.query_selector_all('iframe[src*="hcaptcha-enclave"]')
+                        for idx, iframe in enumerate(enclave_iframes, 1):
+                            print(f"\nEnclave Iframe {idx}:")
+                            print(f"  Source: {iframe.get_attribute('src')}")
+                            print(f"  Widget ID: {iframe.get_attribute('data-hcaptcha-widget-id')}")
+                            print(f"  Response Present: {'Yes' if iframe.get_attribute('data-hcaptcha-response') else 'No'}")
+                            print(f"  Display: {iframe.evaluate('node => window.getComputedStyle(node).display')}")
+                            print(f"  Visibility: {iframe.evaluate('node => window.getComputedStyle(node).visibility')}")
+                            print(f"  Parent: {iframe.evaluate('node => node.parentElement.tagName')}")
+                        
+                        # 3. Check response input field
+                        response_input = self.page.query_selector('textarea[name="h-captcha-response"]')
+                        if response_input:
+                            print("\nResponse Input Field:")
+                            value = response_input.evaluate('node => node.value')
+                            print(f"  Value Present: {'Yes' if value else 'No'}")
+                            if value:
+                                print(f"  Value: {value}")
+                            print(f"  Parent Element: {response_input.evaluate('node => node.parentElement.tagName')}")
+                            print(f"  Is Visible: {response_input.is_visible()}")
+                        
+                        print("\nVerifying form continuation...")
+                        # Check if form continues processing
+                        try:
+                            next_field = self.page.query_selector('input:focus, textarea:focus, select:focus')
+                            if next_field:
+                                print(f"Form is continuing - Found focused field: {next_field.get_attribute('name')}")
+                        except Exception as e:
+                            print("Could not verify form continuation")
+            
             except Exception as e:
                 print(f"Error filling {elem.label}: {e}")
                 unfilled_fields.append(elem.label)
@@ -204,23 +300,20 @@ class FormFiller:
     def _smooth_scroll_to_element(self, element) -> None:
         """Smoothly scroll element into view"""
         try:
-            # Get current scroll position
-            current_scroll = self.page.evaluate('window.scrollY')
-            
             # Get element's position
             box = element.bounding_box()
             if box:
-                # Calculate scroll target (center element in viewport)
-                viewport_height = self.page.evaluate('window.innerHeight')
-                target_scroll = box['y'] - (viewport_height / 2)
-                
-                # Smooth scroll from current position
-                self.page.evaluate("""(current, target) => {
-                    window.scrollTo({
-                        top: target,
-                        behavior: 'smooth'
-                    });
-                }""", current_scroll, target_scroll)
+                self.page.evaluate("""
+                    (elementY) => {
+                        const currentY = window.scrollY;
+                        const offset = 150;  // Space from top
+                        
+                        window.scrollTo({
+                            top: elementY - offset,
+                            behavior: 'smooth'
+                        });
+                    }
+                """, box['y'])
                 
                 # Wait for scroll to complete
                 self.page.wait_for_timeout(TIMEOUTS['interaction'])

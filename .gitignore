@@ -6,6 +6,8 @@ __pycache__/
 venv/
 ENV/
 output/
+logs/
+arxiv/
 
 # IDE
 .vscode/

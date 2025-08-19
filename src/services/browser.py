@@ -19,15 +19,33 @@ class BrowserService:
     def __enter__(self):
         self.playwright = sync_playwright().start()
         
-        self.browser = self.playwright.firefox.launch(
+        # Works for firefox
+        # self.browser = self.playwright.firefox.launch(
+        #     headless=self.headless,
+        #     slow_mo=self.slow_mo,
+        #     args=['--start-maximized']  # Start browser maximized
+        # )
+        
+        # # Get system screen size
+        # context = self.browser.new_context(
+        #     viewport={'width': 1920, 'height': 1080}
+        # )
+
+        # Works for chromium
+        self.browser = self.playwright.chromium.launch(
             headless=self.headless,
             slow_mo=self.slow_mo,
-            args=['--start-maximized']  # Start browser maximized
+            args=[
+                '--start-maximized',
+                '--disable-infobars',
+                '--window-size=1920,1080'
+            ]
         )
-        
+
         # Get system screen size
         context = self.browser.new_context(
-            viewport={'width': 1920, 'height': 1080}
+            viewport=None,  # Required for Chromium maximized mode
+            no_viewport=True
         )
         
         self.page = context.new_page()

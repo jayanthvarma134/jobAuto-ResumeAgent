@@ -101,9 +101,9 @@ class FormFiller:
                         
                         # Comment out manual solution
                         # """
-                        print("\nPlease solve the captcha manually...")
-                        print("After solving, press Enter to capture the state...")
-                        input()
+                        # print("\nPlease solve the captcha manually...")
+                        # print("After solving, press Enter to capture the state...")
+                        # input()
                         # ... rest of manual monitoring code ...
                         # """                        
                         # 1. Get the visible enclave iframe we already detected

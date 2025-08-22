@@ -1,4 +1,4 @@
-# Job Application Form Scraper
+# Automated Form Filler using LLMs
 
 A Python-based tool that scrapes job application forms from various job portals and extracts form elements in a structured format.
 
